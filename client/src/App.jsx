@@ -90,47 +90,107 @@ function App() {
   useEffect(() => { if (token) loadUsers(); }, [token]);
 
   return (
-    <div className="mx-auto max-w-6xl p-4 grid grid-cols-12 gap-4">
+    <div>
       {!token ? (
         <Auth onLogin={login} onRegister={register} />
       ) : (
-        <>
-          <aside className="col-span-4 bg-white rounded-lg border p-3">
-            <h2 className="font-semibold mb-3">Users</h2>
-            <ul className="space-y-1">
-              {users.map(u => (
-                <li key={u._id}>
-                  <button className="w-full text-left px-2 py-2 rounded hover:bg-gray-100" onClick={() => ensureChatWith(u._id)}>
-                    <div className="flex items-center gap-2">
-                      <div className="size-8 rounded-full bg-gray-200" />
-                      <div>
-                        <div className="font-medium">{u.name}</div>
-                        <div className="text-xs text-gray-500">{u.email}</div>
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </aside>
-          <main className="col-span-8 bg-white rounded-lg border flex flex-col">
-            <div className="border-b p-3 font-semibold">{activeChat ? "Chat" : "Select a user to start chatting"}</div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {messages.map(m => (
-                <div key={m._id} className={`max-w-[70%] px-3 py-2 rounded ${m.sender._id === me?._id ? "ml-auto bg-blue-500 text-white" : "bg-gray-100"}`}>
-                  <div className="text-xs opacity-75">{new Date(m.createdAt).toLocaleTimeString()}</div>
-                  <div>{m.content}</div>
+        <div className="chat-container">
+          <aside className="chat-sidebar">
+            <div className="sidebar-header">
+              <h2 className="sidebar-title">Chat App</h2>
+              <div className="sidebar-user">
+                <div className="user-avatar">
+                  {me?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
-              ))}
+                <div className="user-info">
+                  <div className="user-name">{me?.name}</div>
+                  <div className="user-email">{me?.email}</div>
+                </div>
+              </div>
+            </div>
+            <div className="sidebar-users">
+              <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Users</h3>
+              <ul style={{ listStyle: "none" }}>
+                {users
+                  .filter(u => u._id !== me?._id)
+                  .map(u => (
+                    <li key={u._id}>
+                      <button 
+                        className={`user-list-item ${activeChat?.users?.some(user => user._id === u._id) ? 'active' : ''}`}
+                        onClick={() => ensureChatWith(u._id)}
+                      >
+                        <div className="user-item-content">
+                          <div className="user-item-avatar">
+                            {u.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="user-item-info">
+                            <div className="user-item-name">{u.name}</div>
+                            <div className="user-item-email">{u.email}</div>
+                          </div>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </aside>
+          <main className="chat-main">
+            <div className="chat-header">
+              {activeChat ? (
+                <>
+                  <div className="chat-avatar">
+                    {users
+                      .find(u => u._id !== me?._id && activeChat?.users?.some(user => user._id === u._id))
+                      ?.name?.charAt(0)
+                      .toUpperCase() || "U"}
+                  </div>
+                  <div>
+                    {users.find(u => u._id !== me?._id && activeChat?.users?.some(user => user._id === u._id))?.name || "User"}
+                  </div>
+                </>
+              ) : (
+                "Select a user to start chatting"
+              )}
+            </div>
+            <div className="chat-messages">
+              {activeChat ? (
+                messages.map(m => (
+                  <div 
+                    key={m._id} 
+                    className={`message ${m.sender._id === me?._id ? "own" : "other"}`}
+                  >
+                    <div className="message-time">
+                      {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div>{m.content}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="chat-placeholder">
+                  Select a user from the sidebar to start chatting
+                </div>
+              )}
             </div>
             {activeChat && (
-              <div className="p-3 border-t flex gap-2">
-                <input value={messageText} onChange={(e) => setMessageText(e.target.value)} placeholder="Type a message" className="flex-1 border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                <button onClick={sendMessage} className="px-4 py-2 bg-blue-600 text-white rounded">Send</button>
+              <div className="chat-input-container">
+                <input 
+                  value={messageText} 
+                  onChange={(e) => setMessageText(e.target.value)} 
+                  placeholder="Type a message..." 
+                  className="chat-input"
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                />
+                <button 
+                  onClick={sendMessage} 
+                  className="chat-send-button"
+                  disabled={!messageText.trim()}
+                >
+                  Send
+                </button>
               </div>
             )}
           </main>
-        </>
+        </div>
       )}
     </div>
   );
@@ -141,35 +201,60 @@ function Auth({ onLogin, onRegister }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   return (
-    <div className="max-w-sm mx-auto bg-white border rounded-lg p-6 w-full">
-      <h1 className="text-xl font-semibold mb-4">{mode === "login" ? "Login" : "Register"}</h1>
+    <div className="auth-container">
+      <h1 className="auth-title">{mode === "login" ? "Welcome Back" : "Create Account"}</h1>
       {mode === "register" && (
-        <div className="mb-3">
-          <label className="text-sm">Name</label>
-          <input className="w-full border rounded px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
+        <div className="auth-form-group">
+          <label className="auth-form-label">Name</label>
+          <input 
+            className="auth-form-input" 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+            placeholder="Enter your name"
+          />
         </div>
       )}
-      <div className="mb-3">
-        <label className="text-sm">Email</label>
-        <input className="w-full border rounded px-3 py-2" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <div className="auth-form-group">
+        <label className="auth-form-label">Email</label>
+        <input 
+          className="auth-form-input" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="Enter your email"
+          type="email"
+        />
       </div>
-      <div className="mb-4">
-        <label className="text-sm">Password</label>
-        <input type="password" className="w-full border rounded px-3 py-2" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <div className="auth-form-group">
+        <label className="auth-form-label">Password</label>
+        <input 
+          type="password" 
+          className="auth-form-input" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Enter your password"
+        />
       </div>
-      <div className="flex gap-2">
-        {mode === "login" ? (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => onLogin(email, password)}>Login</button>
-        ) : (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => onRegister(name, email, password)}>Register</button>
-        )}
-        <button className="px-4 py-2" onClick={() => setMode(mode === "login" ? "register" : "login")}>
-          {mode === "login" ? "Create account" : "Have an account? Login"}
-        </button>
-      </div>
+      <button 
+        className="auth-form-button" 
+        onClick={() => mode === "login" ? onLogin(email, password) : onRegister(name, email, password)}
+      >
+        {mode === "login" ? "Login" : "Register"}
+      </button>
+      <button 
+        className="auth-form-toggle" 
+        onClick={() => {
+          setMode(mode === "login" ? "register" : "login");
+          setName("");
+          setEmail("");
+          setPassword("");
+        }}
+      >
+        {mode === "login" ? "Don't have an account? Register" : "Already have an account? Login"}
+      </button>
     </div>
   );
 }
 
-export default App
+export default App;
