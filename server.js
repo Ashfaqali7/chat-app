@@ -12,9 +12,10 @@ import messageRoutes from "./routes/message.routes.js";
 
 const app = express();
 connectDB();
-// Improve CORS configuration
+// Improve CORS configuration for dev and prod
+const allowedOrigin = process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : (process.env.FRONTEND_URL || "http://localhost:5173");
 app.use(cors({
-    origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "*",
+    origin: allowedOrigin,
     credentials: true
 }));
 app.use(express.json());
@@ -29,7 +30,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "*",
+        origin: allowedOrigin,
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -37,7 +38,7 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
 
     console.log(`User Connected: ${socket.id}`);
-    
+
     // Track user online status
     socket.on("user_connected", async (userId) => {
         try {
@@ -50,21 +51,21 @@ io.on("connection", (socket) => {
             console.error("Error updating user status:", error);
         }
     });
-    
+
     socket.on("join_room", (data) => {
         socket.join(data);
         console.log(`User with ID: ${socket.id} joined room: ${data}`);
     });
-    
+
     socket.on("send_message", (data) => {
         // Emit to specific room instead of all users
         socket.to(data.chatId).emit("receive_message", data);
     });
-    
+
     socket.on("typing", (data) => {
         socket.to(data.chatId).emit("user_typing", data);
     });
-    
+
     socket.on("disconnect", async () => {
         console.log("❌ Client disconnected:", socket.id);
         // Note: To fully implement offline status, we would need to track which user belongs to which socket
@@ -72,6 +73,7 @@ io.on("connection", (socket) => {
     });
 
 });
-server.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
