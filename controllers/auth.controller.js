@@ -83,3 +83,42 @@ export const listUsers = async (req, res) => {
     }
 };
 
+export const addUserByEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        // Check if user is trying to add themselves
+        if (email === req.user.email) {
+            res.status(400);
+            throw new Error("You cannot add yourself");
+        }
+        
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            // If user exists, return the existing user
+            return res.json(existingUser);
+        }
+        
+        // Create a placeholder user with a random password
+        const placeholderPassword = Math.random().toString(36).slice(-8);
+        const newUser = await User.create({
+            name: email.split("@")[0], // Use email username as name
+            email: email,
+            password: placeholderPassword // This will be hashed by the pre-save hook
+        });
+        
+        // Return the user without the password
+        const userWithoutPassword = {
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+            avatar: newUser.avatar,
+            status: newUser.status
+        };
+        
+        res.status(201).json(userWithoutPassword);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

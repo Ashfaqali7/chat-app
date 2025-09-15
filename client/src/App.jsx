@@ -8,6 +8,8 @@ function App() {
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
 
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const ws = useRef(null);
@@ -72,6 +74,34 @@ function App() {
     setMessageText("");
   }
 
+  async function addUserByEmail() {
+    if (!newUserEmail.trim()) return;
+    
+    try {
+      const res = await fetch(`${apiBase}/api/auth/add-user`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json", 
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ email: newUserEmail })
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to add user");
+      }
+      
+      const newUser = await res.json();
+      setUsers(prev => [...prev, newUser]);
+      setNewUserEmail("");
+      setShowAddUser(false);
+      alert("User added successfully!");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   useEffect(() => {
     let socket;
     import("socket.io-client").then(({ io }) => {
@@ -109,7 +139,80 @@ function App() {
               </div>
             </div>
             <div className="sidebar-users">
-              <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Users</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h3 style={{ fontSize: "1.1rem" }}>Users</h3>
+                <button 
+                  onClick={() => setShowAddUser(!showAddUser)}
+                  style={{ 
+                    background: "rgba(255,255,255,0.2)", 
+                    border: "none", 
+                    color: "white", 
+                    borderRadius: "50%", 
+                    width: "30px", 
+                    height: "30px",
+                    cursor: "pointer",
+                    fontSize: "1.2rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                  title="Add User"
+                >
+                  +
+                </button>
+              </div>
+              
+              {showAddUser && (
+                <div style={{ marginBottom: "1rem", background: "rgba(255,255,255,0.1)", padding: "0.8rem", borderRadius: "8px" }}>
+                  <input
+                    type="email"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    placeholder="Enter email to add user"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      borderRadius: "4px",
+                      border: "none",
+                      marginBottom: "0.5rem"
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={addUserByEmail}
+                      style={{
+                        flex: 1,
+                        padding: "0.4rem",
+                        background: "#667eea",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddUser(false);
+                        setNewUserEmail("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "0.4rem",
+                        background: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <ul style={{ listStyle: "none" }}>
                 {users
                   .filter(u => u._id !== me?._id)
