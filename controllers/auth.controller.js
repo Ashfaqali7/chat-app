@@ -1,5 +1,5 @@
-import User from "../models/user";
-import generateToken from "../utils/generateToken";
+import User from "../models/user.js";
+import generateToken from "../utils/generateToken.js";
 
 export const registerUser = async (req, res) => {
 
@@ -56,5 +56,30 @@ export const loginUser = async (req, res) => {
 
 export const logOutUser = async (req, res) => {
     res.cookie("jwt", "", { expires: new Date(0) });
+    return res.json({ message: "Logged out" });
+};
+
+export const listUsers = async (req, res) => {
+    try {
+        const search = req.query.search?.trim();
+        const query = search
+            ? {
+                $and: [
+                    { _id: { $ne: req.user._id } },
+                    {
+                        $or: [
+                            { name: { $regex: search, $options: "i" } },
+                            { email: { $regex: search, $options: "i" } }
+                        ]
+                    }
+                ]
+            }
+            : { _id: { $ne: req.user._id } };
+
+        const users = await User.find(query).select("name email avatar status");
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
