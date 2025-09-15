@@ -11,27 +11,26 @@ export const accessChat = async (req, res) => {
                 message: "UserId param not sent with request"
             });
         }
-        
-        // Use findOne instead of find to get a single chat object
+
         let chat = await Chat.findOne({
             members: { $all: [req.user._id, userId] },
         }).populate("members", "-password")
             .populate("latestMessage");
-        
+
         // Check if chat exists
         if (chat) {
             return res.json(chat);
         }
-        
+
         // Create new chat if none exists
         const createdChat = await Chat.create({
             members: [req.user._id, userId],
         });
-        
+
         const fullChat = await Chat.findOne({ _id: createdChat._id }).populate(
             "members", "-password"
         );
-        
+
         return res.status(201).json(fullChat);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -42,8 +41,8 @@ export const fetchChats = async (req, res) => {
     try {
         const chats = await Chat.find({ members: req.user._id })
             .populate("members", "-password")
-            .populate("latestMessageId") // corrected field name
-            .sort({ updatedAt: -1 }); // latest chat first
+            .populate("latestMessage")
+            .sort({ updatedAt: -1 });
 
         res.json(chats);
     } catch (error) {

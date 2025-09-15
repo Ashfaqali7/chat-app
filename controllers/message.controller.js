@@ -84,3 +84,26 @@ export const deleteMessage = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Add function to mark messages as read
+export const markAsRead = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        
+        const message = await Message.findByIdAndUpdate(
+            messageId,
+            {
+                $addToSet: { readBy: req.user._id } // Add user to readBy array if not already there
+            },
+            { new: true }
+        ).populate("sender", "name avatar email");
+        
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+        
+        res.json(message);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

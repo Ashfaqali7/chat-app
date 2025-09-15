@@ -12,7 +12,11 @@ import messageRoutes from "./routes/message.routes.js";
 
 const app = express();
 connectDB();
-app.use(cors());
+// Improve CORS configuration
+app.use(cors({
+    origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "*",
+    credentials: true
+}));
 app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Chat App Backend is running...");
@@ -25,22 +29,46 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "*",
         methods: ["GET", "POST"],
+        credentials: true
     },
 });
 io.on("connection", (socket) => {
 
     console.log(`User Connected: ${socket.id}`);
+    
+    // Track user online status
+    socket.on("user_connected", async (userId) => {
+        try {
+            // Update user status to online
+            const User = (await import('./models/user.js')).default;
+            await User.findByIdAndUpdate(userId, { status: "online" });
+            // Broadcast to all users that this user is online
+            socket.broadcast.emit("user_online", userId);
+        } catch (error) {
+            console.error("Error updating user status:", error);
+        }
+    });
+    
     socket.on("join_room", (data) => {
         socket.join(data);
         console.log(`User with ID: ${socket.id} joined room: ${data}`);
     });
-    socket.on("sendMessage", (data) => {
-        io.emit("receiveMessage", data);
+    
+    socket.on("send_message", (data) => {
+        // Emit to specific room instead of all users
+        socket.to(data.chatId).emit("receive_message", data);
     });
-    socket.on("disconnect", () => {
+    
+    socket.on("typing", (data) => {
+        socket.to(data.chatId).emit("user_typing", data);
+    });
+    
+    socket.on("disconnect", async () => {
         console.log("❌ Client disconnected:", socket.id);
+        // Note: To fully implement offline status, we would need to track which user belongs to which socket
+        // This would require a more complex mapping of sockets to users
     });
 
 });
