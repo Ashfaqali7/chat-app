@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import "./index.css";
+import "./App.css";
 
 function App() {
   const [token, setToken] = useState("");
