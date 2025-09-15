@@ -1,5 +1,5 @@
 import JWT from "jsonwebtoken";
-import User from "./models/user.model.js";
+import User from "../models/user.js";
 
 export const authMiddleware = async (req, res, next) => {
     if (!req.headers.authorization) {

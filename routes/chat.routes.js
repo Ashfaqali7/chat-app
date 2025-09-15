@@ -1,6 +1,6 @@
 import express from "express";
-import { authMiddleware } from "../middleware/authMiddleware.js";
-import { accessChat, fetchChats, deleteChat } from "../controllers/chatController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { accessChat, fetchChats, deleteChat } from "../controllers/chat.controller.js";
 
 const router = express.Router();
 
