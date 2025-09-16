@@ -124,12 +124,12 @@ function App() {
   useEffect(() => { if (token) loadUsers(); }, [token]);
 
   return (
-    <div className="container h-screen p-16 flex flex-col">
+    <div className="container mx-auto h-screen flex flex-col p-2 sm:p-4 md:p-8">
       {!token ? (
         <Auth onLogin={login} onRegister={register} />
       ) : (
-        <div className="flex flex-1 overflow-hidden">
-          <div className="w-80 flex-shrink-0">
+        <div className="flex flex-1 overflow-hidden rounded-2xl shadow-xl">
+          <div className="w-64 sm:w-80 flex-shrink-0  md:block">
             <Sidebar
               me={me}
               users={users}
@@ -143,7 +143,7 @@ function App() {
             />
           </div>
 
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             <ChatHeader activeChat={activeChat} users={users} me={me} />
             <ChatMessages activeChat={activeChat} messages={messages} me={me} />
             {activeChat && (
