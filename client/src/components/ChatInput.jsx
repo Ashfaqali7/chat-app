@@ -6,15 +6,15 @@ const ChatInput = ({ messageText, onMessageChange, onSendMessage, disabled }) =>
           value={messageText}
           onChange={(e) => onMessageChange(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+          className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
           onKeyDown={(e) => e.key === "Enter" && onSendMessage()}
         />
         <button
           onClick={onSendMessage}
           disabled={!messageText.trim() || disabled}
-          className={`w-14 h-14 rounded-full font-medium transition duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+          className={`w-14 h-14 rounded-full font-medium transition duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 ${
             messageText.trim() && !disabled
-              ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transform hover:scale-105"
+              ? "bg-teal-600 hover:bg-teal-700 text-white shadow-md transform hover:scale-105"
               : "bg-gray-200 text-gray-500 cursor-not-allowed"
           }`}
           aria-label="Send message"

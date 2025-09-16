@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Additional mobile responsive improvements */
+@media (max-width: 768px) {
+  .container {}
+
+  .hidden-mobile {
+    display: none;
+  }
+
+  .visible-mobile {
+    display: block;
+  }
+
+  .mobile-full-width {
+    width: 100%;
+  }
+}

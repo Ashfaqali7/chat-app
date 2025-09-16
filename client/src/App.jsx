@@ -6,7 +6,7 @@ import ChatHeader from "./components/ChatHeader";
 import ChatMessages from "./components/ChatMessages";
 import ChatInput from "./components/ChatInput";
 function App() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [me, setMe] = useState(null);
   const [users, setUsers] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
@@ -26,6 +26,7 @@ function App() {
     });
     if (!res.ok) return alert("Login failed");
     const data = await res.json();
+    localStorage.setItem("token", data.token);
     setToken(data.token);
     setMe(data);
   }
@@ -38,6 +39,7 @@ function App() {
     });
     if (!res.ok) return alert("Register failed");
     const data = await res.json();
+    localStorage.setItem("token", data.token);
     setToken(data.token);
     setMe(data);
   }
@@ -121,7 +123,18 @@ function App() {
     return () => socket?.disconnect?.();
   }, [apiBase, me?._id, activeChat?._id]);
 
-  useEffect(() => { if (token) loadUsers(); }, [token]);
+  useEffect(() => { 
+    if (token) {
+      loadUsers(); 
+    }
+  }, [token]);
+
+  // Add a logout function to clear token
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    setMe(null);
+  };
 
   return (
     <div className="container mx-auto h-screen flex flex-col p-2 sm:p-4 md:p-8">
@@ -140,6 +153,7 @@ function App() {
               newUserEmail={newUserEmail}
               showAddUser={showAddUser}
               setShowAddUser={setShowAddUser}
+              onLogout={logout}
             />
           </div>
 

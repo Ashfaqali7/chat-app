@@ -12,8 +12,8 @@ const ChatHeader = ({ activeChat, users, me }) => {
   );
 
   return (
-    <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50 flex items-center space-x-4 shadow-sm">
-      <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+    <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-cyan-50 flex items-center space-x-4 shadow-sm">
+      <div className="w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
         {otherUser?.name?.charAt(0)?.toUpperCase() || "U"}
       </div>
       <div className="min-w-0">

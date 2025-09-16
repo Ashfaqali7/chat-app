@@ -7,7 +7,7 @@ const Auth = ({ onLogin, onRegister }) => {
   const [password, setPassword] = useState("");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 p-4 sm:p-6">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md sm:p-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
@@ -26,7 +26,7 @@ const Auth = ({ onLogin, onRegister }) => {
               Name
             </label>
             <input
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
@@ -39,7 +39,7 @@ const Auth = ({ onLogin, onRegister }) => {
             Email
           </label>
           <input
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
@@ -53,7 +53,7 @@ const Auth = ({ onLogin, onRegister }) => {
           </label>
           <input
             type="password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
@@ -61,7 +61,7 @@ const Auth = ({ onLogin, onRegister }) => {
         </div>
         
         <button
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 mb-4 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 mb-4 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
           onClick={() => mode === "login" ? onLogin(email, password) : onRegister(name, email, password)}
         >
           {mode === "login" ? "Sign In" : "Create Account"}
@@ -69,7 +69,7 @@ const Auth = ({ onLogin, onRegister }) => {
         
         <div className="text-center">
           <button
-            className="text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="text-teal-600 hover:text-teal-800 font-medium py-2 px-4 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             onClick={() => {
               setMode(mode === "login" ? "register" : "login");
               setName("");
